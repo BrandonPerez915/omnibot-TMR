@@ -19,13 +19,17 @@ ya que crearon la branch, vaya a la carpeta que les corresponda (control o commu
 ## Push
 
 cuando quieran subir cambios al repo:
+
 **subir la capeta entera**: git add nombre_carpeta
+
 **subir solo un archivo**: git add nombre_archivo
 
 ya que hicieron el add:
+
 git commit -m "Mensaje DESCRIPTIVO del push, (que se hizo, que se agrego, etc.)"
 
 ya que hicieron el commit:
+
 git push origin nombre_branch
 
 Ya con eso me va a llegar la pull request y yo la reviso
