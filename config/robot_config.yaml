@@ -1,0 +1,20 @@
+# omnibot-TMR robot configuration
+# Edit these values to match your physical robot and environment.
+
+robot:
+  wheel_radius: 0.05       # metres
+  robot_radius: 0.15       # distance from centre to each wheel (metres)
+  max_speed: 20.0          # maximum wheel angular velocity (rad/s)
+  tracking_gain: 0.5       # proportional gain for move_toward() — tune for competition
+
+communication:
+  port: "/dev/ttyUSB0"     # serial port of the microcontroller
+  baud_rate: 115200
+
+computer_vision:
+  model_path: "config/model.pt"   # path to YOLO weights
+  confidence_threshold: 0.5
+  device: "cpu"            # "cpu" | "cuda:0"
+  camera_index: 0          # OpenCV camera index (0 = default webcam)
+  frame_width: 640
+  frame_height: 480

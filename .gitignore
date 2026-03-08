@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.whl
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+*.ipynb
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config overrides (keep templates, ignore local overrides)
+config/local_*.yaml
+config/local_*.json
+
+# Logs & data
+*.log
+logs/
+data/raw/
+data/processed/
+
+# Model weights (large binaries — store in DVC/LFS instead)
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.pb

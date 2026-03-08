@@ -1,0 +1,20 @@
+# Core dependencies
+numpy>=1.24.0
+opencv-python>=4.8.0
+Pillow>=10.0.0
+
+# Computer vision
+ultralytics>=8.0.0       # YOLOv8 object detection
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Robot control & hardware
+pyserial>=3.5            # Serial communication with microcontrollers
+
+# Utilities
+pyyaml>=6.0              # YAML config parsing
+loguru>=0.7.0            # Structured logging
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
