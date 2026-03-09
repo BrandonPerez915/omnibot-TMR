@@ -59,8 +59,10 @@ git commit -m "Escribe aquí qué agregaste o qué corregiste"
 
 ```Bash
 # Recuerda usar el nombre de tu rama (control o communication)
-git push origin nombre_branch 5. Revisión y Pull Requests
+git push origin nombre_branch
 ```
+
+## 5. Revisión y Pull Requests
 
 Una vez que hagas el push, me llegará la notificación del Pull Request. Yo revisaré el código para integrarlo a la rama principal.
 
