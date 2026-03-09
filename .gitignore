@@ -4,3 +4,7 @@
 
 # Dataset y imagenes
 data/
+
+# Archivos de cache y compilados de python
+__pycache__/
+*.pyc
