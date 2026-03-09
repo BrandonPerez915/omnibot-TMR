@@ -1,12 +1,7 @@
 from ultralytics import YOLO
 import cv2 as cv
 import numpy as np
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from utils.beans import getBeanColor
+import matplotlib.pyplot as plt
 
 # Informacion sobre la clase Results de Ultralytics YOLOv8:
 
@@ -110,6 +105,7 @@ def getColorName(colorHSV: np.ndarray) -> str:
     return "Desconocido"
 
 img = cv.imread(IMG_PATH)
+hsvData = []
 
 for beanBox in beans:
     cv.rectangle(
@@ -120,6 +116,8 @@ for beanBox in beans:
     )
 
     beanColor = getBeanColor(result.orig_img, beanBox)
+    h, s, v = beanColor
+    hsvData.append((h, s, v))
     colorName = getColorName(beanColor)
 
     cv.putText(
@@ -132,5 +130,32 @@ for beanBox in beans:
         2
     )
 
+if len(hsvData) > 0:
+    data = np.array(hsvData)
+    
+    fig = plt.figure(figsize=(15, 6))
+
+    # Grafica 2D
+    ax1 = fig.add_subplot(1, 2, 1)
+    scatter1 = ax1.scatter(data[:, 0], data[:, 1], c=data[:, 0], cmap='hsv', edgecolors='k')
+    ax1.set_title("Plano Hue-Saturation (Cromaticidad)")
+    ax1.set_xlabel("Hue (Matiz)")
+    ax1.set_ylabel("Saturation (Pureza)")
+    ax1.grid(True)
+
+    # Grafica 3D
+    ax2 = fig.add_subplot(1, 2, 2, projection='3d')
+    scatter2 = ax2.scatter(data[:, 0], data[:, 1], data[:, 2], c=data[:, 0], cmap='hsv', s=50)
+    ax2.set_title("Espacio 3D HSV (Incluye Brillo)")
+    ax2.set_xlabel("H")
+    ax2.set_ylabel("S")
+    ax2.set_zlabel("V (Brillo)")
+
+    plt.tight_layout()
+    plt.show()
+else:
+    print("No se detectaron granos para graficar.")
+
 cv.imshow('Detection Result', img)
-cv.imwrite('./runs/images/imageTestResult.jpeg', img) # Guardar la imagen con detecciones y colores anotados
+cv.waitKey(0)
+# cv.imwrite('./runs/images/imageTestResult.jpeg', img) # Guardar la imagen con detecciones y colores anotados
