@@ -1,38 +1,71 @@
-# Sigan estos pasos en orden chabales 
+# 🤖 Guía de Colaboración: Omnibot-TMR
 
-## Clonar el repo y moverse dentro de el
+chabales, para mantener el repositorio limpio y evitar conflictos de código, sigan estos pasos en orden cada vez que vayan a trabajar.
 
+## 1. Configuración Inicial
+
+Primero, clona el repositorio y entra a la carpeta del proyecto:
+
+```Bash
 git clone https://github.com/BrandonPerez915/omnibot-TMR
 cd omnibot-TMR
+```
 
-## Crear una branch nueva
+## 2. Gestión de Branches (Ramas)
 
-Cesar tu crea una branch que se llame control 
-Ivan tu crea una branch que se llama communication
+Importante: Nadie trabaja sobre main. Cada quien tiene su espacio asignado:
 
-git checkout -b nombre-branch 
+- Cesar: Tu rama es control
+- Ivan: Tu rama es communication
 
-## Copiar archivos
+Para crear y moverte a tu rama, usa:
 
-ya que crearon la branch, vaya a la carpeta que les corresponda (control o communication) y copien el codigo que tenian, o si no tienen nada, comiencen a chaber ahi
+```Bash
+# Cambia 'nombre-branch' por control o communication según te toque
+git checkout -b nombre-branch
+```
 
-## Push
+## 3. Desarrollo y Organización
 
-cuando quieran subir cambios al repo:
+Una vez en tu rama, localiza la carpeta que te corresponde (/control o /communication):
 
-**subir la capeta entera**: git add nombre_carpeta
+- Si ya tienes código: Cópialo dentro de tu carpeta respectiva.
+- Si vas a empezar de cero: Crea tus archivos directamente ahí.
 
-**subir solo un archivo**: git add nombre_archivo
+💡 Tip: No modifiques archivos fuera de tu carpeta asignada a menos que sea estrictamente necesario.
 
-ya que hicieron el add:
+4. Subir Cambios (Workflow de Git)
+   Cuando estés listo para subir tus avances, sigue este flujo:
 
-git commit -m "Mensaje DESCRIPTIVO del push, (que se hizo, que se agrego, etc.)"
+### Paso A: Preparar archivos (Add)
 
-ya que hicieron el commit:
+```Bash
+# Para subir una carpeta completa:
+git add nombre_carpeta/
 
-git push origin nombre_branch
+# Para subir un archivo específico:
+git add nombre_archivo.cpp
+```
 
-Ya con eso me va a llegar la pull request y yo la reviso
-Pueden usar este README para agreagar documentacion o cosas relevante, como la estructura de datos que recibe la ESP, etc.
+### Paso B: Confirmar cambios (Commit)
 
-IMPORTATE: No suban al repositorio binario o cosas que no nos sirvan, modifiquen el .gitignore si es necesario
+Escribe mensajes claros para saber qué se hizo:
+
+```Bash
+git commit -m "Escribe aquí qué agregaste o qué corregiste"
+```
+
+### Paso C: Publicar en el repo (Push)
+
+```Bash
+# Recuerda usar el nombre de tu rama (control o communication)
+git push origin nombre_branch 5. Revisión y Pull Requests
+```
+
+Una vez que hagas el push, me llegará la notificación del Pull Request. Yo revisaré el código para integrarlo a la rama principal.
+
+# ⚠️ Notas Importantes
+
+Documentación: Siéntanse libres de usar este README para anotar estructuras de datos (ej. qué recibe la ESP32), pines usados o librerías extra.
+
+Limpieza: No suban archivos binarios, ejecutables o carpetas temporales de compilación, modifiquen el gitignore si es necesario
