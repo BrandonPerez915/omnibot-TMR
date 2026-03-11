@@ -2,92 +2,62 @@ from ultralytics import YOLO
 import cv2 as cv
 import numpy as np
 
-from utils.beans import getBeanColor, getBeanLabel
+# sudo /opt/nvidia/jetson-io/jetson-io.py
+# gst-launch-1.0 nvarguscamerasrc ! 'video/x-raw(memory:NVMM),width=1280,height=720,framerate=30/1' ! nvvidconv ! xvimagesink
 
 MODEL_PATH = "../model/model.pt"  # Ruta al modelo entrenado
-IMG_PATH = "../data/test/img3.jpeg"  # Ruta a la imagen de prueba
 
-model = YOLO(MODEL_PATH)
-cap = cv.VideoCapture(0)
+model = YOLO(MODEL_PATH, task='detect')
+# TODO: Investigar como implementar la optimizacion de ultralytics con CUDA
+# model.export(format="engine", device=0, half=True, workspace=4)
 
-# Configuracion para el video procesado
-frameWidth = int(cap.get(cv.CAP_PROP_FRAME_WIDTH))
-frameHeight = int(cap.get(cv.CAP_PROP_FRAME_HEIGHT))
-fps = 20
+def gstreamer_pipeline(
+    sensor_id=0,
+    capture_width=1280,
+    capture_height=720,
+    framerate=30,
+    flip_method=0,
+    display_width=1280,
+    display_height=720,
+):
+    return (
+        "nvarguscamerasrc sensor-id=%d ! "
+        "video/x-raw(memory:NVMM), width=%d, height=%d, format=NV12, framerate=%d/1 ! "
+        "nvvidconv flip-method=%d ! "
+        "video/x-raw, width=%d, height=%d, format=BGRx ! "
+        "videoconvert ! "
+        "video/x-raw, format=BGR ! appsink drop=True"
+        % (
+            sensor_id,
+            capture_width,
+            capture_height,
+            framerate,
+            flip_method,
+            display_width,
+            display_height,
+        )
+    )
 
-fourcc = cv.VideoWriter_fourcc(*"mp4v")  # Codec para video MP4
-out = cv.VideoWriter("VideoTest.mp4", fourcc, fps, (frameWidth, frameHeight))
+pipeline = gstreamer_pipeline(sensor_id=0, flip_method=0)
+cap = cv.VideoCapture(pipeline, cv.CAP_GSTREAMER)
 
 while True:
     ret, frame = cap.read()
-    if not ret:
-        print("No se pudo capturar el video")
-        break
+    if not ret: break
 
-    # Listas para almacenar las coordenadas de los bounding boxes de arboles y granos
-    trees = []
-    beans = []
+    results = model.predict(frame, conf=0.25, verbose=False)[0].numpy()
 
-    result = model.predict(frame, conf=0.5, verbose=False)[0]
+    if results is not None:
+        for box in results.boxes:
+            r = box.xyxy[0].astype(int)
+            labelId = int(box.cls[0])
+            labelName = "Bean" if labelId == 0 else "Tree" 
+            
+            cv.rectangle(frame, (r[0], r[1]), (r[2], r[3]), (0, 255, 0), 2)
+            cv.putText(frame, labelName, (r[0], r[1]-10), cv.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-    for box in result.boxes:
-        boxShape = box.xyxy[0]
-        classId = int(box.cls)
-        className = result.names[classId]
-
-        mappedBoxShape = (
-            int(boxShape[0]),
-            int(boxShape[1]),
-            int(boxShape[2]),
-            int(boxShape[3]),
-        )
-
-        if className == "bean":
-            beans.append(mappedBoxShape)
-        else:
-            trees.append(mappedBoxShape)
-
-    for beanBox in beans:
-        cv.rectangle(
-            frame, (beanBox[0], beanBox[1]), (beanBox[2], beanBox[3]), (0, 255, 0), 2
-        )
-
-        try:
-            beanColor = getBeanColor(frame, beanBox)
-            beanLabel = getBeanLabel(beanColor)
-
-            cv.putText(
-                frame,
-                beanLabel,
-                (beanBox[0], beanBox[1] - 10),
-                cv.FONT_HERSHEY_SIMPLEX,
-                0.9,
-                (0, 255, 0),
-                2,
-            )
-        except Exception as e:
-            print(f"Error procesando color: {e}")
-
-    for treeBox in trees:
-        cv.rectangle(
-            frame, (treeBox[0], treeBox[1]), (treeBox[2], treeBox[3]), (255, 0, 0), 2
-        )
-        cv.putText(
-            frame,
-            "Tree",
-            (treeBox[0], treeBox[1] - 10),
-            cv.FONT_HERSHEY_SIMPLEX,
-            0.9,
-            (255, 0, 0),
-            2,
-        )
-
-    out.write(frame)
-    cv.imshow("Video", frame)
-
-    if cv.waitKey(1) & 0xFF == ord("q"):
-        break
+    cv.imshow("Optimized", frame)
+    if cv.waitKey(1) & 0xFF == ord("q"): break
 
 cap.release()
-out.release()
 cv.destroyAllWindows()
