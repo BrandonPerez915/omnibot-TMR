@@ -8,3 +8,6 @@ data/
 # Archivos de cache y compilados de python
 __pycache__/
 *.pyc
+
+# venv de la jetson
+omnibot/
