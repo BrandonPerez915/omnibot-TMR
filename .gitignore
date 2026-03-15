@@ -11,3 +11,4 @@ __pycache__/
 
 # venv de la jetson
 omnibot/
+omni_venv/
