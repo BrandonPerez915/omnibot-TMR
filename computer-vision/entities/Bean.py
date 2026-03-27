@@ -3,24 +3,32 @@ import cv2 as cv
 
 
 class Bean:
-    def __init__(self, box: tuple, confidence: float):
+    def __init__(self, box, confidence):
         """
         Args:
             box: Objeto box de Ultralytics o tensor con [x1, y1, x2, y2]
             confidence (float): Confianza de la detección
         """
-        self.coords = box.xyxy[0].cpu().numpy().astype(int)
+        self.coords = box
         self.confidence = float(confidence)
 
-        self.x1, self.y1, self.x2, self.y2 = self.coords
-        self.width = self.x2 - self.x1
-        self.height = self.y2 - self.y1
-        self.center = (int(self.x1 + self.width / 2), int(self.y1 + self.height / 2))
+        self.x1 = int(box[0])
+        self.y1 = int(box[1])
+        self.x2 = int(box[2])
+        self.y2 = int(box[3])
 
-        self.h, self.s, self.v = None, None, None  # Valores HSV del grano
+        self.boxWidth = self.x2 - self.x1
+        self.boxHeight = self.y2 - self.y1
+        self.center = (
+            int(self.x1 + self.boxWidth / 2),
+            int(self.y1 + self.boxHeight / 2),
+        )
+
+        # Se utiliza Lab (Luminancia, a, b) para una mejor separación de colores bajo diferentes condiciones de iluminación
+        self.l, self.a, self.b = None, None, None
         self.colorName = None
 
-    def getROI(self, frame: np.ndarray) -> np.ndarray:
+    def getROI(self, frame):
         """Obtiene la región de interés (ROI) de este grano a partir de las
         coordenadas del bounding box.
 
@@ -48,24 +56,21 @@ class Bean:
             and self.y2 <= tree.y2
         )
 
-    def __repr__(self):
-        return f"Bean(Center={self.center}, Conf={self.confidence:.2f})"
-
-    def setHSV(self, frame):
-        """Calcula y asigna los valores HSV del grano a partir de su ROI en la imagen.
+    def setLab(self, frame):
+        """Calcula y asigna los valores Lab del grano a partir de su ROI en la imagen.
 
         Args:
             frame (np.ndarray): La imagen de entrada en formato BGR.
         """
         roi = self.getROI(frame)
         if roi.size == 0:
-            self.h, self.s, self.v = 0, 0, 0
+            self.l, self.a, self.b = 0, 0, 0
             return
 
-        HSV_ROI = cv.cvtColor(roi, cv.COLOR_BGR2HSV)
+        labROI = cv.cvtColor(roi, cv.COLOR_BGR2LAB)
 
-        mean = cv.mean(HSV_ROI)  # Devuelve (H_mean, S_mean, V_mean, A_mean)
+        mean = cv.mean(labROI)  # Devuelve (L_mean, A_mean, B_mean)
 
-        self.h = int(mean[0])
-        self.s = int(mean[1])
-        self.v = int(mean[2])
+        self.l = int(mean[0])
+        self.a = int(mean[1])
+        self.b = int(mean[2])
