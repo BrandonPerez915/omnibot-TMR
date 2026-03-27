@@ -1,54 +1,72 @@
 from ultralytics import YOLO
 import cv2 as cv
+
 from utils.results import filterResults
 
 MODEL_PATH = "./model/model.pt"
-CONF_LEVEL = 0.1
 
 model = YOLO(MODEL_PATH)
-
-cap = cv.VideoCapture(0)
-
-cap.set(cv.CAP_PROP_FRAME_WIDTH, 640)
-cap.set(cv.CAP_PROP_FRAME_HEIGHT, 480)
+cap = cv.VideoCapture(1)
 
 while True:
     ret, frame = cap.read()
+
     if not ret:
         break
 
-    rawResults = model.predict(frame, conf=CONF_LEVEL, verbose=False)[0]
+    # Dibujar box en el centro del frame
+    cv.rectangle(
+        frame,
+        (frame.shape[1] // 2 - 100, frame.shape[0] // 2 - 100),
+        (frame.shape[1] // 2 + 100, frame.shape[0] // 2 + 100),
+        (255, 255, 255),
+        2,
+    )
 
-    data = filterResults(rawResults)
-
-    for tree in data["trees"]:
-        cv.rectangle(frame, (tree.x1, tree.y1), (tree.x2, tree.y2), (255, 0, 0), 2)
-        cv.putText(
-            frame,
-            f"T ({tree.confidence:.2f})",
-            (tree.x1, tree.y1 - 7),
-            cv.FONT_HERSHEY_SIMPLEX,
-            0.4,
-            (255, 0, 0),
-            1,
-            cv.LINE_AA,
-        )
+    rawResults = model.predict(frame, conf=0.5, verbose=False)[0]
+    data = filterResults(rawResults, frame)
 
     for bean in data["beans"]:
-        cv.rectangle(frame, (bean.x1, bean.y1), (bean.x2, bean.y2), (0, 255, 0), 1)
-        name = getattr(bean, "colorName", "B")
+        color = None
+        if bean.colorName == "Sobremaduro":
+            color = (0, 0, 0)
+        elif bean.colorName == "Maduro":
+            color = (0, 0, 255)
+        else:
+            color = (0, 255, 0)
+
+        cv.rectangle(frame, (bean.x1, bean.y1), (bean.x2, bean.y2), color, 2)
+        label_text = bean.colorName
         cv.putText(
             frame,
-            name,
-            (bean.x1, bean.y1 - 5),
+            label_text,
+            (bean.x1, bean.y1 - 10),
             cv.FONT_HERSHEY_SIMPLEX,
-            0.3,
-            (0, 255, 0),
-            1,
-            cv.LINE_AA,
+            0.5,
+            color,
+            2,
         )
 
-    cv.imshow("Omnibot", frame)
+    # for tree in data["trees"]:
+    #     cv.rectangle(frame, (tree.x1, tree.y1), (tree.x2, tree.y2), (255, 0, 0), 2)
+
+    # Verificar si hay granos dentro del box central
+    central_box = {
+        "x1": frame.shape[1] // 2 - 100,
+        "y1": frame.shape[0] // 2 - 100,
+        "x2": frame.shape[1] // 2 + 100,
+        "y2": frame.shape[0] // 2 + 100,
+    }
+    for bean in data["beans"]:
+        if (
+            bean.x1 >= central_box["x1"]
+            and bean.y1 >= central_box["y1"]
+            and bean.x2 <= central_box["x2"]
+            and bean.y2 <= central_box["y2"]
+        ):
+            print(f"Grano detectado dentro del box central: {bean.colorName}")
+
+    cv.imshow("Result", frame)
     if cv.waitKey(1) & 0xFF == ord("q"):
         break
 
