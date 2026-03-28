@@ -10,5 +10,6 @@ __pycache__/
 *.pyc
 
 # venv de la jetson
-omnibot/
-omni_venv/
+omnibot-cv/
+label-studio/
+dataset/
