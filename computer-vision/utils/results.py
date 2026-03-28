@@ -60,11 +60,14 @@ def filterResults(results, frame):
     for bean in mappedBeans:
         bean.setLab(frame)
 
-        if bean.b > 135 and bean.a > 115 and bean.l > 70:
-            bean.colorName = "Maduro"
+        if bean.l <= 100:
+            bean.colorName = "Sobremaduro"
 
-        elif bean.a < 125 and bean.l > 70:
+        elif bean.a <= 110 :
             bean.colorName = "Inmaduro"
+
+        elif bean.b > 130 and bean.a > 110:
+            bean.colorName = "Maduro"
 
         else:
             bean.colorName = "Sobremaduro"
