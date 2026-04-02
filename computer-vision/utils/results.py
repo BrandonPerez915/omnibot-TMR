@@ -1,25 +1,6 @@
-import numpy as np
-
-from entities.Tree import Tree
 from entities.Bean import Bean
 
-import numpy as np
-
-# Centroides fijos en el espacio AB
-REFERENCE_COLORS_AB = np.array(
-    [
-        [160, 135],  # 0: Maduro
-        [140, 165],  # 1: Maduro
-        [120, 175],  # 2: Maduro
-        [120, 120],  # 3: Sobremaduro
-        [100, 140],  # 4: Inmaduro
-        [128, 128],  # 5: Sobremaduro
-    ],
-    dtype=float,
-)
-
-
-def filterResults(results, frame):
+def filterResults(results):
     """
     Filtra árboles con confianza > 0.6 y granos que estén dentro de dichos árboles.
     Args:
@@ -37,39 +18,31 @@ def filterResults(results, frame):
     # columna 4 = conf
     # columna 5 = cls
     boxes = results.boxes.data
-    # Creacion de mascaras para arboles y granos
-    isTree = (boxes[:, 5] == 1) & (boxes[:, 4] > 0.6)
-    isBean = boxes[:, 5] == 0
+    # Creacion de mascaras para granos maduros, sobremaduros e inmaduros
+    isUnripe = boxes[:, 5] == 0
+    isRipe = boxes[:, 5] == 1
+    isOverripe = boxes[:, 5] == 2
     # Filtrado aplicando las mascaras
-    treeBoxes = boxes[isTree]
-    beanBoxes = boxes[isBean]
-
-    # Copia de GPU a CPU
-    treesNp = treeBoxes.cpu().numpy()
-    beansNp = beanBoxes.cpu().numpy()
+    ripes = boxes[isRipe].cpu().numpy()
+    unripes = boxes[isUnripe].cpu().numpy()
+    overripes = boxes[isOverripe].cpu().numpy()
 
     # Crear entidades -> Entidad([x1,y1,x2,y2], conf)
-    mappedTrees = [Tree(box[:4], box[4]) for box in treesNp]
-    mappedBeans = [Bean(box[:4], box[4]) for box in beansNp]
+    mappedBeans = []
 
-    # if len(mappedTrees) == 0:
-    #     print("Warning: There are no trees detected")
-    # if len(mappedBeans) == 0:
-    #     print("Warning: There are no beans detected")
-
-    for bean in mappedBeans:
-        bean.setLab(frame)
-
-        if bean.l <= 100:
-            bean.colorName = "Sobremaduro"
-
-        elif bean.a <= 110 :
-            bean.colorName = "Inmaduro"
-
-        elif bean.b > 130 and bean.a > 110:
-            bean.colorName = "Maduro"
-
-        else:
-            bean.colorName = "Sobremaduro"
-
-    return {"trees": mappedTrees, "beans": mappedBeans}
+    for box in ripes:
+        bean = Bean(box[:4], box[4])
+        bean.colorName = "Maduro"
+        mappedBeans.append(bean)
+    
+    for box in unripes:
+        bean = Bean(box[:4], box[4])
+        bean.colorName = "Inmaduro"
+        mappedBeans.append(bean)
+    
+    for box in overripes:
+        bean = Bean(box[:4], box[4])
+        bean.colorName = "Sobremaduro"
+        mappedBeans.append(bean)
+    
+    return mappedBeans
