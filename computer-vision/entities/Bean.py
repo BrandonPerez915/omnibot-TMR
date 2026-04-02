@@ -40,22 +40,6 @@ class Bean:
 
         return frame[self.y1 : self.y2, self.x1 : self.x2]
 
-    def inTree(self, tree) -> bool:
-        """
-        Verifica si este grano está dentro de un árbol dado.
-        Args:
-            tree (Tree): El objeto Tree con el que se va a comparar.
-        Returns:
-            bool: True si el grano está dentro del árbol, False en caso contrario.
-        """
-
-        return (
-            self.x1 >= tree.x1
-            and self.y1 >= tree.y1
-            and self.x2 <= tree.x2
-            and self.y2 <= tree.y2
-        )
-
     def setLab(self, frame):
         """Calcula y asigna los valores Lab del grano a partir de su ROI en la imagen.
 
