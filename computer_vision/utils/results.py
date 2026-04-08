@@ -1,5 +1,5 @@
 from constants import BeanStates
-from entities import Bean
+from computer_vision.entities import Bean
 
 
 def filter_results(results):
@@ -31,6 +31,11 @@ def filter_results(results):
 
     # Crear entidades -> Entidad([x1,y1,x2,y2], conf)
     mappedBeans = []
+
+    for box in unripes:
+        bean = Bean(box[:4], box[4])
+        bean.state = BeanStates.UNRIPE
+        mappedBeans.append(bean)
 
     for box in ripes:
         bean = Bean(box[:4], box[4])
