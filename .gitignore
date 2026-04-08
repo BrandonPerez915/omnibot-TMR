@@ -2,7 +2,7 @@
 .*
 !.gitignore
 
-# Dataset y imagenes
+# Imagenes guardadas
 data/
 
 # Archivos de cache y compilados de python
@@ -11,5 +11,7 @@ __pycache__/
 
 # venv de la jetson
 omnibot-cv/
-label-studio/
 dataset/
+
+# folder de logs
+logs/
