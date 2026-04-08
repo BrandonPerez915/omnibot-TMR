@@ -3,10 +3,10 @@ OmniBot Computer Vision
 Módulo principal
 """
 
-import entities
-import utils
+from . import entities
+from . import utils
 
-__version__ = "2.0.0"
+__version__ = "1.0.0"
 __author__ = "Brandon Pérez"
 __description__ = "Sistema de visión para OmniBot en Jetson Orin Nano"
 __all__ = ["entities", "utils"]
