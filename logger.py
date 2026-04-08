@@ -9,10 +9,7 @@ import logging
 import logging.handlers
 from pathlib import Path
 from typing import Optional, Final
-
-PROJECT_PATH: Final[Path] = Path(__file__).parent
-LOGS_PATH: Final[Path] = PROJECT_PATH / "logs"
-
+from constants import LOGS_DIR
 
 class LoggerManager:
     """Gestor centralizado de loggers."""
@@ -52,12 +49,12 @@ class LoggerManager:
         root_logger = logging.getLogger()
         root_logger.setLevel(level)
 
-        # Handler para consola
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(level)
-        console_formatter = logging.Formatter(cls._default_format)
-        console_handler.setFormatter(console_formatter)
-        root_logger.addHandler(console_handler)
+        # # Handler para consola
+        # console_handler = logging.StreamHandler()
+        # console_handler.setLevel(level)
+        # console_formatter = logging.Formatter(cls._default_format)
+        # console_handler.setFormatter(console_formatter)
+        # root_logger.addHandler(console_handler)
 
         # Handler para archivo (si se especifica)
         if log_file:
