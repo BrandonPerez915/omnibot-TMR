@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import Final
 
 # Rutas
-PROJECT_PATH: Final[Path] = Path(__file__).parent.parent
-MODEL_DIR: Final[Path] = PROJECT_PATH / "model"
+PROJECT_PATH: Final[Path] = Path(__file__).parent
+MODEL_DIR: Final[Path] = PROJECT_PATH / "computer_vision" / "model"
 SAVE_DIR: Final[Path] = PROJECT_PATH / "data"
 LOGS_DIR: Final[Path] = PROJECT_PATH / "logs"
 
@@ -26,6 +26,7 @@ class SPICommands:
     START: Final[str] = "E"  # Iniciar
     STRAIGHT: Final[str] = "F"  # Avanzar recto
     STOP: Final[str] = "O"  # Detener
+    ESP_OK: Final[str] = "K"  # Confirmación de ESP32
 
 
 # Estados de granos
