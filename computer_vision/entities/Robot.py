@@ -3,11 +3,14 @@ import cv2 as cv
 import numpy as np
 from ultralytics import YOLO
 
-from utils import filter_results
-from entities import Frame
-from constants import MODEL_DIR, SPICommands
+from computer_vision.utils import filter_results
+from computer_vision.entities import Frame
 from communication import SPIManager
 
+from constants import MODEL_DIR, SPICommands, BeanStates
+from logger import get_logger
+
+logger = get_logger(__name__)
 
 class Robot:
     MIN_POOL_AREA = 5000
@@ -25,7 +28,11 @@ class Robot:
 
     def get_frame(self, camera_id: int, device: str = "cpu") -> Frame:
         ret, frame = self.cameras[camera_id].read()
-        return Frame(frame, device=device) if ret else None
+        if not ret:
+            logger.warning(f"No se pudo leer frame de la cámara {camera_id}")
+            return None
+        
+        return Frame(frame, device=device)
 
     def release_cameras(self):
         for cam in self.cameras:
@@ -62,7 +69,7 @@ class Robot:
 
         beans = filter_results(
             Robot.model.predict(
-                self.current_frame.get_image(), conf=0.5, verbose=False
+                self.current_frame.get_image(), conf=0.6, verbose=False
             )[0]
         )
 
@@ -76,29 +83,36 @@ class Robot:
         beanInCenter = False
 
         for bean in beans:
-            if bean.colorName == "Sobremaduro":
+            if bean.state == BeanStates.OVERRIPE:
                 color = (0, 0, 0)
-            elif bean.colorName == "Maduro":
+            elif bean.state == BeanStates.RIPE:
                 color = (0, 0, 255)
             else:
                 color = (0, 255, 0)
 
+            title = BeanStates.NAMES[bean.state]
             self.current_frame.draw_box(
-                (bean.x1, bean.y1, bean.x2, bean.y2), title=bean.colorName, color=color
+                (bean.x1, bean.y1, bean.x2, bean.y2), title=title, color=color
             )
 
             if self.current_frame.is_object_inside_box(bean, centralBox):
-                print(f"Grano detectado dentro del box central: {bean.colorName}")
                 beanInCenter = True
 
         return beanInCenter
 
     def begin_secuense(self):
         self.SPIManager.send_command(SPICommands.START)
+        logger.info("Secuencia iniciada: Enviando comando START al robot")
 
     def go_straight(self):
         self.SPIManager.send_command(SPICommands.STRAIGHT)
+        logger.info("Enviando comando STRAIGHT al robot")
 
     def take_bean(self):
+        logger.info("Grano detectado. Deteniendo robot y activando mecanismo de recolección.")
         self.SPIManager.send_command(SPICommands.STOP)
+        logger.info("Enviando comando STOP al robot")
+        time.sleep(10)  # Esto simula la logica de tomar el grano, se debe reemplazar por la lógica real de activación del mecanismo
+        self.SPIManager.send_command(SPICommands.STRAIGHT)
+        logger.info("Reanudando movimiento del robot después de tomar el grano.")
         # Lógica para activar el mecanismo de recolección

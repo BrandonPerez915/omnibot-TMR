@@ -13,16 +13,13 @@ class Bean:
         self.x2 = int(box[2])
         self.y2 = int(box[3])
 
-        self.boxWidth = self.x2 - self.x1
-        self.boxHeight = self.y2 - self.y1
+        self.box_width = self.x2 - self.x1
+        self.box_height = self.y2 - self.y1
         self.center = (
-            int(self.x1 + self.boxWidth / 2),
-            int(self.y1 + self.boxHeight / 2),
+            int(self.x1 + self.box_width / 2),
+            int(self.y1 + self.box_height / 2),
         )
 
-        # Se utiliza Lab (Luminancia, a, b) para una mejor separación de colores
-        # bajo diferentes condiciones de iluminación
-        self.l, self.a, self.b = None, None, None
         self.state = None
 
     def get_roi(self, frame):

@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-from utils import open_camera, close_camera
+from computer_vision.utils import open_camera, close_camera
 
 nothing = lambda x: None
 

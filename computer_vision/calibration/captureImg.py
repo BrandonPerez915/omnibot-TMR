@@ -1,7 +1,7 @@
 import cv2 as cv
 
 from constants import SAVE_PATH
-from utils import open_camera, close_camera
+from computer_vision.utils import open_camera, close_camera
 
 click_detected = False
 current_img = 1
