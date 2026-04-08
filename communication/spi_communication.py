@@ -9,6 +9,7 @@ import spidev
 import time
 
 from logger import get_logger
+from constants import SPICommands
 
 logger = get_logger(__name__)
 
@@ -82,6 +83,31 @@ class SPIManager:
                     time.sleep(timeout / retry)
 
         logger.error(f"Falló al enviar comando '{command}' después de {retry} intentos")
+        return False
+    
+    def wait_for_response(self, timeout: float = 1.0) -> bool:
+        """
+        Espera una respuesta específica de la ESP32.
+
+        Args:
+            expected_response: Respuesta esperada en bytes
+            timeout: Tiempo máximo de espera en segundos
+
+        Returns:
+            bool: True si se recibió la respuesta esperada, False en caso contrario
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                response = self.spi.readbytes(4)  # Leer 4 bytes de respuesta
+                if bytes(response) == bytes(SPICommands.ESP_OK, 'utf-8'):
+                    logger.debug(f"Respuesta recibida: {response}")
+                    return True
+            except Exception as e:
+                logger.warning(f"Error al leer respuesta SPI: {e}")
+                time.sleep(0.1)
+
+        logger.error(f"No se recibió la respuesta esperada '{SPICommands.ESP_OK}' dentro del timeout")
         return False
 
     def close(self) -> None:
