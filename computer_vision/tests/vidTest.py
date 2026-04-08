@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2 as cv
 
-from utils.results import filter_results
+from computer_vision.utils.results import filter_results
 
 MODEL_PATH = "./model/model.pt"
 

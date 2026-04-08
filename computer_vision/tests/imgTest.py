@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import cv2 as cv
 import matplotlib.pyplot as plt
 
-from utils import filter_results
+from computer_vision.utils import filter_results
 
 MODEL_PATH = "./model/model.engine"
 IMG_PATH = "../dataset/img2.jpg"
